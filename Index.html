@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Posts Viewer</title>
+  <title>Posts Manager</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -24,31 +25,107 @@
 
     <section id="posts-list">
       <h2>All Posts</h2>
+  
+      <div id="spinner" class="spinner hidden"></div>
       <ul id="posts"></ul>
     </section>
   </main>
 
   <script>
-    const API = '/posts'; 
+    const API = '/posts';
 
-    
     async function loadPosts() {
+      const spinner = document.getElementById('spinner');
+      const ul = document.getElementById('posts');
+      ul.innerHTML = '';
+      spinner.classList.remove('hidden');
+
       try {
         const res = await fetch(API);
+        if (!res.ok) throw new Error(res.status);
         const posts = await res.json();
-        const ul = document.getElementById('posts');
-        ul.innerHTML = posts.map(p =>
-          `<li>
-             <strong>${p.title}</strong>
-             <p>${p.body}</p>
-           </li>`
-        ).join('');
+        posts.forEach(p => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <div class="post-content">
+              <strong>${p.title}</strong>
+              <p>${p.body}</p>
+            </div>
+            <div class="post-actions">
+              <button class="edit-btn" data-id="${p.id}">Edit</button>
+              <button class="delete-btn" data-id="${p.id}">Delete</button>
+            </div>
+            <div class="edit-form hidden" id="edit-${p.id}">
+              <input type="text" class="edit-title" value="${p.title}" />
+              <textarea class="edit-body">${p.body}</textarea>
+              <button class="save-btn" data-id="${p.id}">Save</button>
+              <button class="cancel-btn" data-id="${p.id}">Cancel</button>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
       } catch (e) {
         console.error('Failed to load posts', e);
+      } finally {
+        spinner.classList.add('hidden');
+      }
+
+      
+      document.querySelectorAll('.delete-btn').forEach(btn =>
+        btn.addEventListener('click', deletePost)
+      );
+      document.querySelectorAll('.edit-btn').forEach(btn =>
+        btn.addEventListener('click', showEditForm)
+      );
+      document.querySelectorAll('.cancel-btn').forEach(btn =>
+        btn.addEventListener('click', hideEditForm)
+      );
+      document.querySelectorAll('.save-btn').forEach(btn =>
+        btn.addEventListener('click', saveEdit)
+      );
+    }
+
+    async function deletePost(e) {
+      const id = e.target.dataset.id;
+      if (!confirm('Delete post #' + id + '?')) return;
+      try {
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error(res.status);
+        loadPosts();
+      } catch (err) {
+        console.error('Delete failed', err);
       }
     }
 
-    
+    function showEditForm(e) {
+      const id = e.target.dataset.id;
+      document.getElementById(`edit-${id}`).classList.remove('hidden');
+    }
+
+    function hideEditForm(e) {
+      const id = e.target.dataset.id;
+      document.getElementById(`edit-${id}`).classList.add('hidden');
+    }
+
+    async function saveEdit(e) {
+      const id = e.target.dataset.id;
+      const container = document.getElementById(`edit-${id}`);
+      const title = container.querySelector('.edit-title').value.trim();
+      const body  = container.querySelector('.edit-body').value.trim();
+      try {
+        const res = await fetch(`${API}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, body })
+        });
+        if (!res.ok) throw new Error(res.status);
+        hideEditForm(e);
+        loadPosts();
+      } catch (err) {
+        console.error('Update failed', err);
+      }
+    }
+
     document.getElementById('post-form').addEventListener('submit', async e => {
       e.preventDefault();
       const title = document.getElementById('title').value.trim();
@@ -62,11 +139,10 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title, body, userId: 1 })
         });
-        if (!res.ok) throw new Error(`Status ${res.status}`);
+        if (!res.ok) throw new Error(res.status);
         const newPost = await res.json();
         msg.textContent = 'Post created! ID: ' + newPost.id;
         msg.className = 'success';
-        
         loadPosts();
       } catch (err) {
         msg.textContent = 'Error creating post';
@@ -80,3 +156,4 @@
   </script>
 </body>
 </html>
+
