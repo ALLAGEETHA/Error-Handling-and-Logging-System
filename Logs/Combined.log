@@ -1,0 +1,6 @@
+2025-05-03 18:10:00 [INFO]: Server running on port 3000
+2025-05-03 18:12:30 [INFO]: GET /posts - fetched 100 posts
+2025-05-03 18:12:45 [ERROR]: GET /posts failed: Invalid response status: 500
+2025-05-03 18:13:10 [ERROR]: GET /posts/123 failed: Response has no data
+2025-05-03 18:14:00 [INFO]: GET /posts/1 - fetched post with ID 1
+2025-05-03 18:15:02 [ERROR]: POST /posts failed: network error Payload: {"title":"Test","body":"Body","userId":1}
