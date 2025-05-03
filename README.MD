@@ -1,4 +1,4 @@
-Error Handling and Logging System
+Error Handling and Logging System 
 
 Welcome! This project is a simple Node.js and Express application that talks to the JSONPlaceholder API to perform Create, Read, Update, and Delete (CRUD) operations on posts. It’s designed to show how to handle errors gracefully (like network issues or bad responses) and keep detailed logs that help you troubleshoot problems quickly.
 
@@ -8,7 +8,19 @@ How It Works
 - Axios: Makes HTTP requests to the JSONPlaceholder API.
 - Validation: Checks each response’s status and data format before sending it back to the client.
 - Error Handling: Catches problems such as timeouts, HTTP errors, or unexpected data and returns a clear JSON error message.
-- Logging: Uses Winston to record events and errors both in the console and 
+- Logging: Uses Winston to record events and errors both in 
+
+📂 Folder Structure 
+├── app.js
+├── logger.js
+├── package.json
+├── README.md
+├── logs/
+│   ├── error.log
+│   └── combined.log
+└── public/
+    ├── index.html
+    └── style.css
 
  Quick Start
 
@@ -25,7 +37,7 @@ How It Works
    
    mkdir logs
   
-4. **Run the server**
+4. Run the server
    
    npm start
    
@@ -44,8 +56,8 @@ Available Endpoints
 Example Request
 
 
-curl -X POST http://localhost:3000/posts \
-  -H "Content-Type: application/json" \
+curl -X POST http://localhost:3000/posts 
+  -H "Content-Type: application/json" 
   -d '{"title":"Hello","body":"World","userId":1}'
 ```
 
@@ -60,9 +72,9 @@ Logging Explained
 
 Why Logging Matters
 
-- **Debugging**: Quickly find what went wrong and when.
-- **Monitoring**: Keep track of application health over time.
-- **Postmortem**: Review logs to understand and fix issues after they occur.
+- Debugging: Quickly find what went wrong and when.
+- Monitoring: Keep track of application health over time.
+- Postmortem: Review logs to understand and fix issues after they occur.
 
 Contributing
 
