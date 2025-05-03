@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Posts Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>JSONPlaceholder Posts</h1>
+  </header>
+
+  <main>
+    <section id="create-post">
+      <h2>Create New Post</h2>
+      <form id="post-form">
+        <input type="text" id="title" placeholder="Title" required />
+        <textarea id="body" placeholder="Body" required></textarea>
+        <button type="submit">Submit</button>
+      </form>
+      <p id="form-msg"></p>
+    </section>
+
+    <section id="posts-list">
+      <h2>All Posts</h2>
+      <ul id="posts"></ul>
+    </section>
+  </main>
+
+  <script>
+    const API = '/posts'; 
+
+    
+    async function loadPosts() {
+      try {
+        const res = await fetch(API);
+        const posts = await res.json();
+        const ul = document.getElementById('posts');
+        ul.innerHTML = posts.map(p =>
+          `<li>
+             <strong>${p.title}</strong>
+             <p>${p.body}</p>
+           </li>`
+        ).join('');
+      } catch (e) {
+        console.error('Failed to load posts', e);
+      }
+    }
+
+    
+    document.getElementById('post-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const body  = document.getElementById('body').value.trim();
+      const msg   = document.getElementById('form-msg');
+      msg.textContent = '';
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, body, userId: 1 })
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const newPost = await res.json();
+        msg.textContent = 'Post created! ID: ' + newPost.id;
+        msg.className = 'success';
+        
+        loadPosts();
+      } catch (err) {
+        msg.textContent = 'Error creating post';
+        msg.className = 'error';
+        console.error(err);
+      }
+    });
+
+    
+    loadPosts();
+  </script>
+</body>
+</html>
